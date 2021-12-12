@@ -17,6 +17,7 @@ output_directory <- getwd()
 chart_size = c(1600, 900)
 text_size = 15
 main_time_axis_breaks = "3 years"
+focus_time_axis_breaks = "3 months"
 ```
 
 Example chart output:
