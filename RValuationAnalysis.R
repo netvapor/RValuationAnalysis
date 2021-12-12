@@ -22,7 +22,9 @@ focus_period <- 365
 
 output_directory <- getwd()
 chart_size = c(1920, 1080)
-text_size = 14
+text_size = 15
+main_time_axis_breaks = "2 years"
+focus_time_axis_breaks = "3 months"
 
 get_log_breaks <- function(data, breaks){
   # Calculate rounded axis breaks on log scale
@@ -64,7 +66,7 @@ modelled_yearly_return <- (increase^(1 / (as.numeric(end_date - ymd(start_date))
 
 price_curve <- ggplot(data=data, aes(x = date, y = close)) +
   geom_line() +
-  scale_x_date(date_breaks = "2 years", limits = ymd(start_date, end_date), labels = date_format("%b %Y")) +
+  scale_x_date(date_breaks = main_time_axis_breaks, limits = ymd(start_date, end_date), labels = date_format("%b %Y")) +
   labs(title = paste0(symbol, " (", sybol_name, ") - from ", min(data$date), " to ", max(data$date)),
        subtitle = paste0("Average return per annum: ", round(avg_yearly_return, digits = 1),
                          "% (black), Average modelled return per annum: ",
@@ -84,7 +86,7 @@ price_focus_log_axis = get_log_breaks(c(data_focus$close,
 
 price_focus <- ggplot(data = data_focus, aes(x = date, y = close)) +
   geom_line() +
-  scale_x_date(date_breaks = "2 months") +
+  scale_x_date(date_breaks = focus_time_axis_breaks) +
   labs(title = "Last 12 months",
        subtitle = paste0("Current valuation relative to model: ",
                          round(current_rel_val, 1), "% (red)")) +
@@ -114,7 +116,7 @@ relative_value <- ggplot(data = rel_dat, aes(x = date, y = relation)) +
   geom_line() +
   geom_hline(yintercept = 100, color = "blue") +
   geom_hline(yintercept = current_rel_val, color = "red") +
-  scale_x_date(date_breaks = "2 years", limits = ymd(start_date, end_date), labels = date_format("%b %Y")) +
+  scale_x_date(date_breaks = main_time_axis_breaks, limits = ymd(start_date, end_date), labels = date_format("%b %Y")) +
   scale_y_log10(breaks = relative_value_log_axis, minor_breaks = NULL) +
   coord_cartesian(ylim = c(min(relative_value_log_axis), max(relative_value_log_axis))) +
   xlab("Time") +

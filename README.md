@@ -14,8 +14,9 @@ end_date <- Sys.Date()
 focus_period <- 365
 
 output_directory <- getwd()
-chart_size = c(1920, 1080)
-text_size = 14
+chart_size = c(1600, 900)
+text_size = 15
+main_time_axis_breaks = "3 years"
 ```
 
 Example chart output:
