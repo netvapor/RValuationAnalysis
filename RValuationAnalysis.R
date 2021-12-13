@@ -1,7 +1,8 @@
 # Project: RValuationAnalysis
-# Version: 1.0.0
+# Version: 1.1.0
 # License: GPL-3
 # Copyright (c) 2021 netvapor
+# URL: github.com/netvapor/RValuationAnalysis
 # Formatting: UTF-8
 
 library(quantmod)
@@ -13,18 +14,27 @@ library(MASS)
 library(grid)
 library(gridExtra)
 library(scales)
+library(yaml)
+config = yaml.load_file(file.path(getwd(), "config.yml"))
 
-symbol <- "^NDX"
-sybol_name <- "NASDAQ 100"
-start_date <- "1985-10-01"
-end_date <- Sys.Date()
-focus_period <- 365
+symbol <- config$symbol
+sybol_name <- config$sybol_name
+start_date <- config$start_date
+end_date <- config$end_date
+if(is.null(end_date)){
+  end_date = Sys.Date()
+}
+focus_period <- config$focus_period
 
-output_directory <- getwd()
-chart_size = c(1920, 1080)
-text_size = 15
-main_time_axis_breaks = "2 years"
-focus_time_axis_breaks = "3 months"
+output_path <- config$output_path
+if(is.null(output_path)){
+  output_path = file.path(getwd(), symbol)
+}
+
+chart_size = config$chart_size
+text_size = config$text_size
+main_time_axis_breaks = config$main_time_axis_breaks
+focus_time_axis_breaks = config$focus_time_axis_breaks
 
 get_log_breaks <- function(data, breaks){
   # Calculate rounded axis breaks on log scale
@@ -148,7 +158,7 @@ relative_value_freq <- ggplot(data = rel_dat, aes(x = relation)) +
   theme_minimal() +
   theme(text = element_text(size = text_size))
 
-filename <- paste0(file.path(output_directory, symbol), '.png')
+filename <- paste0(output_path, '.png')
 png(filename, width = chart_size[1] / 1.0, height = chart_size[2] / 1.0)
 grid.arrange(price_curve, price_focus, relative_value, relative_value_freq,
              ncol = 2, widths = c(2.5, 1),

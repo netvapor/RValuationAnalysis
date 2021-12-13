@@ -1,0 +1,11 @@
+symbol: "^NDX"
+sybol_name: "NASDAQ 100"
+start_date: "1985-10-01"
+end_date: 
+focus_period: 365
+
+output_path: 
+chart_size: [1920, 1080]
+text_size: 15
+main_time_axis_breaks: "2 years"
+focus_time_axis_breaks: "3 months"

@@ -4,20 +4,39 @@ Simple R script to model valuation and analyze relative deviations over time.
 The model is calculated using the iterated re-weighted least squares algorithm:  
 https://en.wikipedia.org/wiki/Iteratively_reweighted_least_squares
 
-You can configure a symbol and time frame to analyze at the top of the script as well as the chart output settings:
+You can configure an analysis by modifying the config.yml before running the script:
 
 ```
-symbol <- "^NDX"
-sybol_name <- "NASDAQ 100"
-start_date <- "1985-10-01"
-end_date <- Sys.Date()
-focus_period <- 365
+# Symbol to be analyzed
+symbol: "^NDX"
 
-output_directory <- getwd()
-chart_size = c(1600, 900)
-text_size = 15
-main_time_axis_breaks = "3 years"
-focus_time_axis_breaks = "3 months"
+# Name for the symbol / report title
+sybol_name: "NASDAQ 100"
+
+# Start date of timeframe to be analyzed 
+start_date: "1985-10-01"
+
+# End date of timeframe to be analyzed (default: today).
+end_date: 
+
+# Length of the focus timeframe in days
+focus_period: 365
+
+# Output chart path, e.g.: "/charts/NDX-2020". Chart format is .png and automatically appended.
+# Default: Working directory + symbol
+output_path: 
+
+# Output chart dimensions
+chart_size: [1920, 1080]
+
+# Output chart text size
+text_size: 15
+
+# Distance of breaks for the main axis
+main_time_axis_breaks: "2 years"
+
+# Distance of breaks for the focus axis
+focus_time_axis_breaks: "3 months"
 ```
 
 Example chart output:
