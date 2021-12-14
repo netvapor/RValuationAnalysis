@@ -15,10 +15,14 @@ library(grid)
 library(gridExtra)
 library(scales)
 library(yaml)
-config = yaml.load_file(file.path(getwd(), "config.yml"))
 
+config = yaml.load_file(file.path(getwd(), "config.yml"))
 symbol <- config$symbol
 sybol_name <- config$sybol_name
+if(!is.null(sybol_name) & !sybol_name == ""){
+  sybol_name = paste0(" (",sybol_name,")")
+}
+
 start_date <- config$start_date
 end_date <- config$end_date
 if(is.null(end_date)){
@@ -26,13 +30,21 @@ if(is.null(end_date)){
 }
 focus_period <- config$focus_period
 
-output_path <- config$output_path
-if(is.null(output_path)){
-  output_path = file.path(getwd(), symbol)
+output_file_path <- config$output_file_path
+if(is.null(output_file_path)){
+  output_file_path = file.path(getwd(), symbol)
 }
 
 chart_size = config$chart_size
+if(is.null(chart_size)){
+  chart_size = c(1920, 1080)
+}
+
 text_size = config$text_size
+if(is.null(text_size)){
+  text_size = 15
+}
+
 main_time_axis_breaks = config$main_time_axis_breaks
 focus_time_axis_breaks = config$focus_time_axis_breaks
 
@@ -67,22 +79,24 @@ avg_yearly_return = (((total_increase^(1 / days_passed))^365.25) - 1) * 100
 
 data <- data.frame(index(prices), Cl(prices))
 colnames(data) <- c("date", "close")
+last_value = tail(data$close, 1)
 
 reg_rlm <-  rlm(log(data$close) ~ data$date, psi = psi.bisquare)
-current_rel_val <- as.numeric((tail(data$close, 1)/exp(tail(predict(reg_rlm), 1)))) * 100
+last_modelled_value = exp(tail(predict(reg_rlm), 1))
+current_rel_val <- as.numeric((last_value/last_modelled_value)) * 100
 
-increase <- exp(tail(predict(reg_rlm), 1)) / exp(head(predict(reg_rlm), 1))
+increase <- last_modelled_value / exp(head(predict(reg_rlm), 1))
 modelled_yearly_return <- (increase^(1 / (as.numeric(end_date - ymd(start_date)) / 365.25)) - 1) * 100
 
 price_curve <- ggplot(data=data, aes(x = date, y = close)) +
   geom_line() +
   scale_x_date(date_breaks = main_time_axis_breaks, limits = ymd(start_date, end_date), labels = date_format("%b %Y")) +
-  labs(title = paste0(symbol, " (", sybol_name, ") - from ", min(data$date), " to ", max(data$date)),
+  labs(title = paste0("Modelling ", symbol, sybol_name, " - from ", min(data$date), " to ", max(data$date)),
        subtitle = paste0("Average return per annum: ", round(avg_yearly_return, digits = 1),
                          "% (black), Average modelled return per annum: ",
                          round(modelled_yearly_return, digits = 1), "% (blue)")) +
   scale_y_log10(breaks = get_log_breaks(data$close, 12), minor_breaks = NULL) +
-  geom_hline(yintercept = tail(data$close, 1), color = "red") +
+  geom_hline(yintercept = last_value, color = "red") +
   xlab("Time") +
   ylab("Price (close)") +
   geom_line(aes(x = data$date, y = exp(predict(reg_rlm))), color = "cornflowerblue", size = 1.5) +
@@ -96,15 +110,23 @@ price_focus_log_axis = get_log_breaks(c(data_focus$close,
 
 price_focus <- ggplot(data = data_focus, aes(x = date, y = close)) +
   geom_line() +
+  geom_segment(aes(x = end_date, y = last_modelled_value, xend = end_date, yend = last_value),
+               colour = "darkolivegreen4",
+               size = 1.5,
+               arrow = arrow(length = unit(0.5, "cm"), type = "closed")) +
+  geom_label(aes(label = sprintf("%+3.1f %%", current_rel_val-100),
+                 x = end_date - focus_period/10,
+                 y = (last_value + last_modelled_value)/2),
+             size = 8, colour = "darkolivegreen4") +
   scale_x_date(date_breaks = focus_time_axis_breaks) +
-  labs(title = "Last 12 months",
+  labs(title = paste0("Zoom in on last ", focus_period, " days"),
        subtitle = paste0("Current valuation relative to model: ",
                          round(current_rel_val, 1), "% (red)")) +
                          # "%, equal to ",
                          # round(log(1+(above_rel_val/100))/log(((1+increase_rlm)^(1/12))),1),
                          # " months of return")) +
   scale_y_log10(breaks = price_focus_log_axis, minor_breaks = NULL) +
-  geom_hline(yintercept = tail(data$close, 1), color = "red") +
+  geom_hline(yintercept = last_value, color = "red") +
   coord_cartesian(xlim = ymd(c(end_date - focus_period, end_date)),
                   ylim = c(min(price_focus_log_axis), max(price_focus_log_axis))) +
   xlab("Time") +
@@ -130,11 +152,10 @@ relative_value <- ggplot(data = rel_dat, aes(x = date, y = relation)) +
   scale_y_log10(breaks = relative_value_log_axis, minor_breaks = NULL) +
   coord_cartesian(ylim = c(min(relative_value_log_axis), max(relative_value_log_axis))) +
   xlab("Time") +
-  ylab("Price in % of model") +
+  ylab("Price relative to model") +
   labs(title = "Valuation relative to model",
        subtitle = paste0("A higher relative valuation than on ", max(rel_dat$date),
-                         " (", round(current_rel_val, 1),
-                         "%)\nis observed in ", pct_over_val,
+                         " is observed in ", pct_over_val,
                          "% of all days from ", min(rel_dat$date),
                          " to ", max(rel_dat$date), ".")) +
   theme_minimal() +
@@ -145,10 +166,10 @@ relative_value_freq <- ggplot(data = rel_dat, aes(x = relation)) +
   geom_vline(xintercept = current_rel_val, color = "red") +
   geom_vline(xintercept = exp(mean(log(rel_dat$relation))), color = "orange", linetype = "longdash") +
   geom_vline(xintercept = 100, color = "blue") +
-  geom_vline(xintercept = median(rel_dat$relation), color = "green", linetype = "longdash") +
+  geom_vline(xintercept = median(rel_dat$relation), color = "darkolivegreen4", linetype = "longdash") +
   scale_x_log10(breaks = relative_value_log_axis, minor_breaks = NULL) +
   ylab("Count of days") +
-  xlab("Price in % of model") +
+  xlab("Price relative to model") +
   coord_flip(xlim = c(min(relative_value_log_axis), max(relative_value_log_axis))) +
   labs(title = "Relative valuation histogram",
       subtitle = paste0("Current: ", round(current_rel_val, 1),
@@ -158,7 +179,7 @@ relative_value_freq <- ggplot(data = rel_dat, aes(x = relation)) +
   theme_minimal() +
   theme(text = element_text(size = text_size))
 
-filename <- paste0(output_path, '.png')
+filename <- paste0(output_file_path, '.png')
 png(filename, width = chart_size[1] / 1.0, height = chart_size[2] / 1.0)
 grid.arrange(price_curve, price_focus, relative_value, relative_value_freq,
              ncol = 2, widths = c(2.5, 1),

@@ -10,7 +10,7 @@ You can configure an analysis by modifying the config.yml before running the scr
 # Symbol to be analyzed
 symbol: "^NDX"
 
-# Name for the symbol / report title
+# Name for the symbol / report title, can be left empty
 sybol_name: "NASDAQ 100"
 
 # Start date of timeframe to be analyzed 
@@ -23,13 +23,13 @@ end_date:
 focus_period: 365
 
 # Output chart path, e.g.: "/charts/NDX-2020". Chart format is .png and automatically appended.
-# Default: Working directory + symbol
-output_path: 
+# Default: Working directory/symbol
+output_file_path: 
 
-# Output chart dimensions
+# Output chart dimensions (default: [1920, 1080])
 chart_size: [1920, 1080]
 
-# Output chart text size
+# Output chart text size (default: 15)
 text_size: 15
 
 # Distance of breaks for the main axis

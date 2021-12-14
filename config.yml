@@ -1,11 +1,30 @@
+# Symbol to be analyzed
 symbol: "^NDX"
+
+# Name for the symbol / report title, can be left empty
 sybol_name: "NASDAQ 100"
+
+# Start date of timeframe to be analyzed 
 start_date: "1985-10-01"
+
+# End date of timeframe to be analyzed (default: today).
 end_date: 
+
+# Length of the focus timeframe in days
 focus_period: 365
 
-output_path: 
+# Output chart path, e.g.: "/charts/NDX-2020". Chart format is .png and automatically appended.
+# Default: Working directory/symbol
+output_file_path: 
+
+# Output chart dimensions (default: [1920, 1080])
 chart_size: [1920, 1080]
+
+# Output chart text size (default: 15)
 text_size: 15
+
+# Distance of breaks for the main axis
 main_time_axis_breaks: "2 years"
+
+# Distance of breaks for the focus axis
 focus_time_axis_breaks: "3 months"
