@@ -91,12 +91,12 @@ modelled_yearly_return <- (increase^(1 / (as.numeric(end_date - ymd(start_date))
 price_curve <- ggplot(data=data, aes(x = date, y = close)) +
   geom_line() +
   scale_x_date(date_breaks = main_time_axis_breaks, limits = ymd(start_date, end_date), labels = date_format("%b %Y")) +
-  labs(title = paste0("Modelling ", symbol, sybol_name, " - from ", min(data$date), " to ", max(data$date)),
+  labs(title = paste0("Modelling ", symbol, sybol_name, " from ", min(data$date), " to ", max(data$date)),
        subtitle = paste0("Average return per annum: ", round(avg_yearly_return, digits = 1),
                          "% (black), Average modelled return per annum: ",
                          round(modelled_yearly_return, digits = 1), "% (blue)")) +
   scale_y_log10(breaks = get_log_breaks(data$close, 12), minor_breaks = NULL) +
-  geom_hline(yintercept = last_value, color = "red") +
+  #geom_hline(yintercept = last_value, color = "red") +
   xlab("Time") +
   ylab("Price (close)") +
   geom_line(aes(x = data$date, y = exp(predict(reg_rlm))), color = "cornflowerblue", size = 1.5) +
@@ -111,22 +111,22 @@ price_focus_log_axis = get_log_breaks(c(data_focus$close,
 price_focus <- ggplot(data = data_focus, aes(x = date, y = close)) +
   geom_line() +
   geom_segment(aes(x = end_date, y = last_modelled_value, xend = end_date, yend = last_value),
-               colour = "darkolivegreen4",
+               colour = "darkgreen",
                size = 1.5,
                arrow = arrow(length = unit(0.5, "cm"), type = "closed")) +
   geom_label(aes(label = sprintf("%+3.1f %%", current_rel_val-100),
                  x = end_date - focus_period/10,
                  y = (last_value + last_modelled_value)/2),
-             size = 8, colour = "darkolivegreen4") +
+             size = round(text_size/2), colour = "darkgreen") +
   scale_x_date(date_breaks = focus_time_axis_breaks) +
-  labs(title = paste0("Zoom in on last ", focus_period, " days"),
+  labs(title = paste0("Zoom in on the last ", focus_period, " days"),
        subtitle = paste0("Current valuation relative to model: ",
                          round(current_rel_val, 1), "% (red)")) +
                          # "%, equal to ",
                          # round(log(1+(above_rel_val/100))/log(((1+increase_rlm)^(1/12))),1),
                          # " months of return")) +
   scale_y_log10(breaks = price_focus_log_axis, minor_breaks = NULL) +
-  geom_hline(yintercept = last_value, color = "red") +
+  #geom_hline(yintercept = last_value, color = "red") +
   coord_cartesian(xlim = ymd(c(end_date - focus_period, end_date)),
                   ylim = c(min(price_focus_log_axis), max(price_focus_log_axis))) +
   xlab("Time") +
@@ -157,25 +157,23 @@ relative_value <- ggplot(data = rel_dat, aes(x = date, y = relation)) +
        subtitle = paste0("A higher relative valuation than on ", max(rel_dat$date),
                          " is observed in ", pct_over_val,
                          "% of all days from ", min(rel_dat$date),
-                         " to ", max(rel_dat$date), ".")) +
+                         " to ", max(rel_dat$date), " (red area).")) +
   theme_minimal() +
   theme(text = element_text(size = text_size))
 
 relative_value_freq <- ggplot(data = rel_dat, aes(x = relation)) +
   geom_histogram(aes(y = ..count..), stat = "bin", bins=50, fill = "cornflowerblue") +
   geom_vline(xintercept = current_rel_val, color = "red") +
-  geom_vline(xintercept = exp(mean(log(rel_dat$relation))), color = "orange", linetype = "longdash") +
+  geom_vline(xintercept = exp(mean(log(rel_dat$relation))), color = "darkgreen") +
   geom_vline(xintercept = 100, color = "blue") +
-  geom_vline(xintercept = median(rel_dat$relation), color = "darkolivegreen4", linetype = "longdash") +
   scale_x_log10(breaks = relative_value_log_axis, minor_breaks = NULL) +
   ylab("Count of days") +
   xlab("Price relative to model") +
   coord_flip(xlim = c(min(relative_value_log_axis), max(relative_value_log_axis))) +
   labs(title = "Relative valuation histogram",
       subtitle = paste0("Current: ", round(current_rel_val, 1),
-                  "% (red)\nMedian: ", round(median(rel_dat$relation), 1),
-                  "% (green), Geometric mean: ", round(exp(mean(log(rel_dat$relation))), 1),
-                  "% (orange)")) +
+                  "% (red), Geometric mean: ", round(exp(mean(log(rel_dat$relation))), 1),
+                  "% (green)")) +
   theme_minimal() +
   theme(text = element_text(size = text_size))
 
