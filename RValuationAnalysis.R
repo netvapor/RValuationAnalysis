@@ -121,7 +121,7 @@ price_focus <- ggplot(data = data_focus, aes(x = date, y = close)) +
   scale_x_date(date_breaks = focus_time_axis_breaks) +
   labs(title = paste0("Zoom in on the last ", focus_period, " days"),
        subtitle = paste0("Current valuation relative to model: ",
-                         round(current_rel_val, 1), "% (red)")) +
+                         round(current_rel_val, 1), "%")) +
                          # "%, equal to ",
                          # round(log(1+(above_rel_val/100))/log(((1+increase_rlm)^(1/12))),1),
                          # " months of return")) +
