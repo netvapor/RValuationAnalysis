@@ -18,7 +18,7 @@ focus_period: 365
 output_file_path: example-chart
 
 # Output chart dimensions (default: [1920, 1080])
-chart_size: 
+chart_size: [1440, 810]
 
 # Output chart text size (default: 15)
 text_size: 
