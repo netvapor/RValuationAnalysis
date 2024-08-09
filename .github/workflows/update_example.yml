@@ -1,9 +1,10 @@
 on:
+  workflow_dispatch:
   schedule:
-    - cron: '13 20 * * *'
+    - cron: '*/15 * * * *'
 
 jobs:
-  import-data:
+  update-example:
     runs-on: ubuntu-latest
     steps:
       - name: Set up R
