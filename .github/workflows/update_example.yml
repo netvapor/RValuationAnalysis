@@ -19,7 +19,7 @@ jobs:
             any::ggplot2
             any::ggthemes
             any::lubridate
-            any::grid
+            any::MASS
             any::gridExtra
             any::scales
             any::yaml
