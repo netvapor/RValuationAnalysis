@@ -1,0 +1,39 @@
+on:
+  schedule:
+    - cron: '7 20 * * *'
+
+jobs:
+  import-data:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up R
+        uses: r-lib/actions/setup-r@v2
+
+      - name: Install packages
+        uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          packages: |
+            any::quantmod
+            any::dplyr
+            any::ggplot2
+            any::ggthemes
+            any::lubridate
+            any::MASS
+            any::grid
+            any::gridExtra
+            any::scales
+            any::yaml
+
+      - name: Check out repository
+        uses: actions/checkout@v3
+
+      - name: Create chart
+        run: Rscript -e 'source("RValuationAnalysis.R")'
+
+      - name: Commit results
+        run: |
+          git config --local user.email "actions@github.com"
+          git config --local user.name "GitHub Actions"
+          git add example-chart.png
+          git commit -m 'NASDAQ 100 chart updated' || echo "No changes to commit"
+          git push origin || echo "No changes to commit"
