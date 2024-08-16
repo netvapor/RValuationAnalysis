@@ -108,11 +108,12 @@ price_focus_log_axis = get_log_breaks(c(data_focus$close,
                                         min(tail(exp(predict(reg_rlm)), nrow(data_focus))),
                                         max(tail(exp(predict(reg_rlm)), nrow(data_focus)))), 12)
 
-price_focus <- ggplot(data = data_focus, aes(x = date, y = close)) +
-  geom_line() +
+price_focus <- ggplot() +
+  geom_line(data = data_focus, aes(x = date, y = close)) +
   geom_segment(aes(x = end_date, y = last_modelled_value, xend = end_date, yend = last_value),
+               alpha = 0.5,
                colour = "darkgreen",
-               size = 1.5,
+               linewidth = 1.5,
                arrow = arrow(length = unit(0.5, "cm"), type = "closed")) +
   geom_label(aes(label = sprintf("%+3.1f %%", current_rel_val-100),
                  x = end_date - focus_period/10,
@@ -131,7 +132,7 @@ price_focus <- ggplot(data = data_focus, aes(x = date, y = close)) +
                   ylim = c(min(price_focus_log_axis), max(price_focus_log_axis))) +
   xlab("Time") +
   ylab("Price (close)") +
-  geom_line(aes(x = date, y = tail(exp(predict(reg_rlm)), nrow(data_focus))), color = "cornflowerblue", size = 1.5) +
+  geom_line(data = data_focus, aes(x = date, y = tail(exp(predict(reg_rlm)), nrow(data_focus))), color = "cornflowerblue", size = 1.5) +
   theme_minimal() +
   theme(text = element_text(size = text_size))
 
