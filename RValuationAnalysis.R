@@ -96,7 +96,6 @@ price_curve <- ggplot(data=data, aes(x = date, y = close)) +
                          "% (black), Average modelled return per annum: ",
                          round(modelled_yearly_return, digits = 1), "% (blue)")) +
   scale_y_log10(breaks = get_log_breaks(data$close, 12), minor_breaks = NULL) +
-  #geom_hline(yintercept = last_value, color = "red") +
   xlab("Time") +
   ylab("Price (close)") +
   geom_line(aes(x = data$date, y = exp(predict(reg_rlm))), color = "cornflowerblue", size = 1.5) +
@@ -127,7 +126,6 @@ price_focus <- ggplot() +
                          # round(log(1+(above_rel_val/100))/log(((1+increase_rlm)^(1/12))),1),
                          # " months of return")) +
   scale_y_log10(breaks = price_focus_log_axis, minor_breaks = NULL) +
-  #geom_hline(yintercept = last_value, color = "red") +
   coord_cartesian(xlim = ymd(c(end_date - focus_period, end_date)),
                   ylim = c(min(price_focus_log_axis), max(price_focus_log_axis))) +
   xlab("Time") +
