@@ -54,12 +54,9 @@ jobs:
           value: True
           commitChange: false
 
-      - name: Print file
-        uses: GuillaumeFalourd/command-output-file-action@v1.1
-        with:
-          command_line: ls -lha
-          output_file_name: config.yml
-          display_file_content: YES # this is also the default value if not informed
+      - name: Print file contents
+        run: |
+          cat config.yml
 
       - name: Create chart
         run: Rscript -e 'source("RValuationAnalysis.R")'
