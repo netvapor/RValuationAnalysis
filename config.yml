@@ -18,7 +18,7 @@ focus_period: 365
 
 # Output chart path, e.g.: "/charts/NDX-2020". Chart format is .png and automatically appended.
 # Default: Working directory/symbol
-output_file_path: example-chart
+output_file_path:
 
 # Output chart dimensions (default: [1920, 1080])
 chart_size: [1440, 810]
