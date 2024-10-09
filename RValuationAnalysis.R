@@ -49,6 +49,7 @@ without_inflation = config$without_inflation
 if(is.null(without_inflation)){
   without_inflation = F
 }
+print(without_inflation)
 
 main_time_axis_breaks = config$main_time_axis_breaks
 focus_time_axis_breaks = config$focus_time_axis_breaks
