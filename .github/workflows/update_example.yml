@@ -51,7 +51,7 @@ jobs:
         with:
           valueFile: 'config.yml'
           propertyPath: 'without_inflation'
-          value: TRUE
+          value: True
           commitChange: false
 
       - name: Create chart
