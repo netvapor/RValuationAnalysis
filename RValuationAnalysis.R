@@ -49,7 +49,6 @@ without_inflation = config$without_inflation
 if(is.null(without_inflation)){
   without_inflation = F
 }
-print(without_inflation)
 
 main_time_axis_breaks = config$main_time_axis_breaks
 focus_time_axis_breaks = config$focus_time_axis_breaks
@@ -77,6 +76,7 @@ prices <- getSymbols(Symbols = c(symbol), from = start_date, to = end_date, auto
 prices <- na.omit(prices)
 
 if(without_inflation == T){
+  print("Adjusting...")
   # Adjust historic prices to current dollars
   inflation <- getSymbols(Symbols = c("CPIAUCSL"), from = start_date, to = end_date, auto.assign = F, src='FRED')
   inflation_adjustments <- inflation/as.numeric(last(inflation))
