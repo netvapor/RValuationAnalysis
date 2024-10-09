@@ -51,7 +51,7 @@ jobs:
         with:
           valueFile: 'config.yml'
           propertyPath: 'without_inflation'
-          value: True
+          value: 'True'
           commitChange: false
 
       - name: Print file contents
