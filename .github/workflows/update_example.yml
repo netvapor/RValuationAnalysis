@@ -46,7 +46,7 @@ jobs:
 
       - name: Update YAML key value
         run: |
-          yq '.without_inflation = "True"' config.yml > updated_yaml.yml
+          yq '.without_inflation = "TRUE"' config.yml > updated_yaml.yml
           mv updated_yaml.yml config.yml
 
       - name: Print file contents
