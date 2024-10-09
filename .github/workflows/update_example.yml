@@ -51,8 +51,9 @@ jobs:
         with:
           valueFile: 'config.yml'
           propertyPath: 'without_inflation'
-          value: 'True'
+          value: "True"
           commitChange: false
+          quotingType: "
 
       - name: Print file contents
         run: |
