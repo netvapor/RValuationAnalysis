@@ -54,6 +54,10 @@ jobs:
           value: True
           commitChange: false
 
+      - name: Print file
+        id: vars
+        run: echo "version=$(cat config.yml)" >> $GITHUB_OUTPUT
+
       - name: Create chart
         run: Rscript -e 'source("RValuationAnalysis.R")'
 
