@@ -51,9 +51,11 @@ jobs:
         with:
           valueFile: 'config.yml'
           propertyPath: 'without_inflation'
-          value: "True"
-          commitChange: false
-          quotingType: "
+
+      - name: Update YAML key value
+        run: |
+          yq '.without_inflation = "True"' config.yml > updated_yaml.yml
+          mv updated_yaml.yml config.yml
 
       - name: Print file contents
         run: |
