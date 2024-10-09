@@ -1,5 +1,5 @@
 # Project: RValuationAnalysis
-# Version: 1.1.0
+# Version: 1.2.0
 # License: GPL-3
 # Copyright (c) 2021 netvapor
 # URL: github.com/netvapor/RValuationAnalysis
@@ -45,6 +45,11 @@ if(is.null(text_size)){
   text_size = 15
 }
 
+without_inflation = config$without_inflation
+if(is.null(without_inflation)){
+  without_inflation = F
+}
+
 main_time_axis_breaks = config$main_time_axis_breaks
 focus_time_axis_breaks = config$focus_time_axis_breaks
 
@@ -70,15 +75,32 @@ get_log_axis <- function(data, breaks=13){
 prices <- getSymbols(Symbols = c(symbol), from = start_date, to = end_date, auto.assign = F)
 prices <- na.omit(prices)
 
+if(without_inflation == T){
+  # Adjust historic prices to current dollars
+  inflation <- getSymbols(Symbols = c("CPIAUCSL"), from = start_date, to = end_date, auto.assign = F, src='FRED')
+  inflation_adjustments <- inflation/as.numeric(last(inflation))
+  inflation_adjustments_with_dates <- merge(prices, inflation_adjustments, join="left")
+  
+  current_inflation_adjustment = 0
+  for(i in 1:nrow(prices)) 
+  {
+    if(!is.na(inflation_adjustments_with_dates$CPIAUCSL[i])){
+      current_inflation_adjustment = inflation_adjustments_with_dates$CPIAUCSL[i]
+    }
+    prices$NDX.Close[i] <- as.numeric(inflation_adjustments_with_dates$NDX.Close[i]) / as.numeric(current_inflation_adjustment)
+  }
+}
+
 start_date <- min(index(prices))
 end_date <- max(index(prices))
 
-total_increase = as.numeric(tail(prices[, 1], 1)) / as.numeric(head(prices[, 1], 1))
+total_increase = as.numeric(tail(Cl(prices), 1)) / as.numeric(head(Cl(prices), 1))
 days_passed = as.numeric(max(index(prices)) - min(index(prices)))
 avg_yearly_return = (((total_increase^(1 / days_passed))^365.25) - 1) * 100
 
 data <- data.frame(index(prices), Cl(prices))
 colnames(data) <- c("date", "close")
+data$date <- as.Date(data$date)
 last_value = tail(data$close, 1)
 
 reg_rlm <-  rlm(log(data$close) ~ data$date, psi = psi.bisquare)
@@ -87,6 +109,12 @@ current_rel_val <- as.numeric((last_value/last_modelled_value)) * 100
 
 increase <- last_modelled_value / exp(head(predict(reg_rlm), 1))
 modelled_yearly_return <- (increase^(1 / (as.numeric(end_date - ymd(start_date)) / 365.25)) - 1) * 100
+
+if(without_inflation==T){
+  price_curve_ylab = "Inflation adjusted price"
+} else {
+  price_curve_ylab = "Price"
+}
 
 price_curve <- ggplot(data=data, aes(x = date, y = close)) +
   geom_line() +
@@ -97,7 +125,7 @@ price_curve <- ggplot(data=data, aes(x = date, y = close)) +
                          round(modelled_yearly_return, digits = 1), "% (blue)")) +
   scale_y_log10(breaks = get_log_breaks(data$close, 12), minor_breaks = NULL) +
   xlab("Time") +
-  ylab("Price (close)") +
+  ylab(price_curve_ylab) +
   geom_line(aes(x = data$date, y = exp(predict(reg_rlm))), color = "cornflowerblue", size = 1.5) +
   theme_minimal() +
   theme(text = element_text(size = text_size))
@@ -122,14 +150,11 @@ price_focus <- ggplot() +
   labs(title = paste0("Zoom in on the last ", focus_period, " days"),
        subtitle = paste0("Current valuation relative to model: ",
                          round(current_rel_val, 1), "%")) +
-                         # "%, equal to ",
-                         # round(log(1+(above_rel_val/100))/log(((1+increase_rlm)^(1/12))),1),
-                         # " months of return")) +
   scale_y_log10(breaks = price_focus_log_axis, minor_breaks = NULL) +
   coord_cartesian(xlim = ymd(c(end_date - focus_period, end_date)),
                   ylim = c(min(price_focus_log_axis), max(price_focus_log_axis))) +
   xlab("Time") +
-  ylab("Price (close)") +
+  ylab("Price") +
   geom_line(data = data_focus, aes(x = date, y = tail(exp(predict(reg_rlm)), nrow(data_focus))), color = "cornflowerblue", size = 1.5) +
   theme_minimal() +
   theme(text = element_text(size = text_size))
