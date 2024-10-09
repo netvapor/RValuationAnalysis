@@ -19,6 +19,9 @@ start_date: 1985-10-01
 # End date of timeframe to be analyzed (default: today).
 end_date: 
 
+# Whether inflation data will be used to adjust historic values to the month of end_date (default: False)
+without_inflation:
+
 # Length of the focus timeframe in days
 focus_period: 365
 
