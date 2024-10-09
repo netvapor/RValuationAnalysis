@@ -27,6 +27,14 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v3
 
+      - name: Update values.yaml
+        uses: fjogeleit/yaml-update-action@main
+        with:
+          valueFile: 'config.yml'
+          propertyPath: 'output_file_path'
+          value: example-chart
+          commitChange: false
+
       - name: Create chart
         run: Rscript -e 'source("RValuationAnalysis.R")'
 
@@ -34,16 +42,16 @@ jobs:
         uses: fjogeleit/yaml-update-action@main
         with:
           valueFile: 'config.yml'
-          propertyPath: 'without_inflation'
-          value: TRUE
+          propertyPath: 'output_file_path'
+          value: example-chart-inflation-adjusted
           commitChange: false
 
       - name: Update values.yaml
         uses: fjogeleit/yaml-update-action@main
         with:
           valueFile: 'config.yml'
-          propertyPath: 'output_file_path'
-          value: example-chart-inflation-adjusted
+          propertyPath: 'without_inflation'
+          value: TRUE
           commitChange: false
 
       - name: Create chart
