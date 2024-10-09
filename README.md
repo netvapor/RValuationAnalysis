@@ -8,13 +8,13 @@ You can configure an analysis by modifying the config.yml before running the scr
 
 ```
 # Symbol to be analyzed
-symbol: "^NDX"
+symbol: ^NDX
 
 # Name for the symbol / report title, can be left empty
-sybol_name: "NASDAQ 100"
+sybol_name: NASDAQ 100
 
 # Start date of timeframe to be analyzed 
-start_date: "1985-10-01"
+start_date: 1985-10-01
 
 # End date of timeframe to be analyzed (default: today).
 end_date: 
@@ -33,11 +33,14 @@ chart_size: [1440, 810]
 text_size: 12
 
 # Distance of breaks for the main axis
-main_time_axis_breaks: "3 years"
+main_time_axis_breaks: 3 years
 
 # Distance of breaks for the focus axis
-focus_time_axis_breaks: "3 months"
+focus_time_axis_breaks: 3 months
 ```
 
 Example chart output:
 ![This is an image](example-chart.png)
+
+Example chart output after using inflation data to adjust historical prices:
+![This is an image](example-chart-inflation-adjusted.png)
