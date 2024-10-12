@@ -155,7 +155,7 @@ price_focus <- ggplot() +
   coord_cartesian(xlim = ymd(c(end_date - focus_period, end_date)),
                   ylim = c(min(price_focus_log_axis), max(price_focus_log_axis))) +
   xlab("Time") +
-  ylab("Price") +
+  ylab(price_curve_ylab) +
   geom_line(data = data_focus, aes(x = date, y = tail(exp(predict(reg_rlm)), nrow(data_focus))), color = "cornflowerblue", size = 1.5) +
   theme_minimal() +
   theme(text = element_text(size = text_size))
